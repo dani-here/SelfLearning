@@ -1,3 +1,4 @@
+using CSharpFunctionalExtensions.Json.Serialization;
 using Microsoft.AspNetCore.RateLimiting;
 using SelfLearning.Configurations;
 using SelfLearning.Middlewares;
@@ -15,6 +16,7 @@ namespace SelfLearning
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddHealthChecks();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -50,6 +52,8 @@ namespace SelfLearning
 
             var rateLimitingOptions = builder.Configuration.GetSection(RateLimitingConfiguration.ConfigSectionName);
             app.UseRateLimiter();
+
+            app.MapHealthChecks("/health");
 
             app.Run();
         }

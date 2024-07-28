@@ -1,7 +1,10 @@
 using Asp.Versioning;
+using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
+using SelfLearning.Common;
 using SelfLearning.Configurations;
 
 namespace SelfLearning.Controllers
@@ -19,7 +22,8 @@ namespace SelfLearning.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, 
+            IOptionsSnapshot<RateLimitingConfiguration> rateLimitingConfig)
         {
             _logger = logger;
         }
@@ -36,10 +40,33 @@ namespace SelfLearning.Controllers
             .ToArray();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         [HttpGet, Route("TestMethod")]
-        public string TestMethod(IOptionsSnapshot<RateLimitingConfiguration> rateLimitingConfig)
+        public WeatherForecast TestMethod(int index)
         {
-            return "My First API";
+            try
+            {
+                if (index < 0 || index >= Summaries.Length - 1)
+                    return new WeatherForecast();
+
+                var forecast = new WeatherForecast
+                {
+                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                    TemperatureC = Random.Shared.Next(-20, 55),
+                    Summary = Summaries[index]
+                };
+
+                return forecast;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred");
+            }
         }
+        
     }
 }
